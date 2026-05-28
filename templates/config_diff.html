@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>配置对比</h2>
+<p>
+    <span class="badge bg-success">备份 #{{ backup.id }} ({{ backup.created_at.strftime('%Y-%m-%d %H:%M:%S') }})</span>
+    {% if prev %}
+    <span class="badge bg-secondary">对比: 备份 #{{ prev.id }} ({{ prev.created_at.strftime('%Y-%m-%d %H:%M:%S') }})</span>
+    {% else %}
+    <span class="badge bg-warning text-dark">无更早版本可对比</span>
+    {% endif %}
+</p>
+<a href="/device/{{ backup.device_id }}" class="btn btn-secondary mb-3">返回设备详情</a>
+{% if diff %}
+<div class="border p-3 bg-light" style="max-height: 600px; overflow-y: auto;">{{ diff | safe }}</div>
+{% else %}
+<p class="text-muted">至少需要两个备份版本才能进行对比。</p>
+{% endif %}
+{% endblock %}

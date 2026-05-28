@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>设备列表</h2>
+    <a href="/device/add" class="btn btn-primary">添加设备</a>
+</div>
+
+{% if devices %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>IP 地址</th>
+                <th>设备类型</th>
+                <th>端口</th>
+                <th>添加时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in devices %}
+            <tr>
+                <td><a href="/device/{{ d.id }}">{{ d.name }}</a></td>
+                <td>{{ d.ip }}</td>
+                <td>{{ d.device_type }}</td>
+                <td>{{ d.port }}</td>
+                <td>{{ d.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <button class="btn btn-sm btn-success test-btn" data-id="{{ d.id }}">测试连接</button>
+                    <a href="/device/{{ d.id }}/edit" class="btn btn-sm btn-warning">编辑</a>
+                    <form method="post" action="/device/{{ d.id }}/delete" style="display:inline">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('确认删除？')">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">还没有添加设备，点击上方"添加设备"开始。</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.test-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        this.disabled = true;
+        this.textContent = '连接中...';
+        fetch(`/device/${id}/test`)
+            .then(r => r.json())
+            .then(data => {
+                alert(data.message);
+                this.textContent = data.success ? '✓ 在线' : '测试连接';
+                this.className = data.success ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger test-btn';
+            })
+            .finally(() => { this.disabled = false; });
+    });
+});
+</script>
+{% endblock %}
